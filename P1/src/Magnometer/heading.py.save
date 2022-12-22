@@ -1,0 +1,124 @@
+import math
+from i2clibraries import i2c_hmc5883l
+#Init hmc5883l 
+hmc5883l = i2c_hmc5883l.i2c_hmc5883l(1)
+hmc5883l.setContinuousMode()
+#Calibration values
+hard_iron_bias_x =  -2920.34863930219
+hard_iron_bias_y =  -1383.6340542361306
+hard_iron_bias_z =  459.61796133562467
+
+soft_iron_bias_xx =  0.00038917281773028856
+soft_iron_bias_xy =  -4.135037659826103e-05
+soft_iron_bias_xz =  0.0001679888502236561
+
+soft_iron_bias_yx =  -4.1350376598260954e-05
+soft_iron_bias_yy =  0.000583865736791306
+soft_iron_bias_yz =  3.7472228787288874e-05
+
+soft_iron_bias_zx =  0.00016798885022365606
+soft_iron_bias_zy =  3.747222878728887e-05
+soft_iron_bias_zz =  0.00038750773643155353
+
+x = 0
+y = 0
+z = 0
+
+#Sampled measurement
+for i in range(24):
+  (tx, ty, tz) = hmc5883l.getAxes()
+  x += tx/24
+  y += ty/24
+  z += tz/24
+#Soft iron calibration
+x = x - hard_iron_bias_x
+y = y - hard_iron_bias_y
+z = z - hard_iron_bias_z
+#Hard iron calibration
+x = soft_iron_bias_xx * x + soft_iron_bias_yx * y + soft_iron_bias_zx * z
+y = soft_iron_bias_xy * x + soft_iron_bias_yy * y + soft_iron_bias_zy * z
+z = soft_iron_bias_xz * x + soft_iron_bias_yz * y + soft_iron_bias_zz * z
+#heading
+heading = math.atan2(x, y) * 180 / math.pi
+print(f"Raw heading: {heading}")
+
+f = open("startHeading.txt", "r")
+startHeading = int(f.readline())
+print(f"Start heading: {startHeading}")
+f.close() 
+
+heading = heading - startHeading
+if heading > 180:
+  heading -= 360
+if heading < -180:
+  heading += 360
+if heading < -180:
+  heading += 360
+
+heading = int(heading)
+print(f"Heading is: {heading}")
+
+f = open("heading.txt", "w")
+f.write(str(int(heading)))
+f.close()import math
+from i2clibraries import i2c_hmc5883l
+#Init hmc5883l 
+hmc5883l = i2c_hmc5883l.i2c_hmc5883l(1)
+hmc5883l.setContinuousMode()
+#Calibration values
+hard_iron_bias_x =  -2920.34863930219
+hard_iron_bias_y =  -1383.6340542361306
+hard_iron_bias_z =  459.61796133562467
+
+soft_iron_bias_xx =  0.00038917281773028856
+soft_iron_bias_xy =  -4.135037659826103e-05
+soft_iron_bias_xz =  0.0001679888502236561
+
+soft_iron_bias_yx =  -4.1350376598260954e-05
+soft_iron_bias_yy =  0.000583865736791306
+soft_iron_bias_yz =  3.7472228787288874e-05
+
+soft_iron_bias_zx =  0.00016798885022365606
+soft_iron_bias_zy =  3.747222878728887e-05
+soft_iron_bias_zz =  0.00038750773643155353
+
+x = 0
+y = 0
+z = 0
+
+#Sampled measurement
+for i in range(24):
+  (tx, ty, tz) = hmc5883l.getAxes()
+  x += tx/24
+  y += ty/24
+  z += tz/24
+#Soft iron calibration
+x = x - hard_iron_bias_x
+y = y - hard_iron_bias_y
+z = z - hard_iron_bias_z
+#Hard iron calibration
+x = soft_iron_bias_xx * x + soft_iron_bias_yx * y + soft_iron_bias_zx * z
+y = soft_iron_bias_xy * x + soft_iron_bias_yy * y + soft_iron_bias_zy * z
+z = soft_iron_bias_xz * x + soft_iron_bias_yz * y + soft_iron_bias_zz * z
+#heading
+heading = math.atan2(x, y) * 180 / math.pi
+
+f = open("startHeading.txt", "r")
+startHeading = int(f.readline())
+print(f"Start heading: {startHeading}")
+f.close() 
+
+heading = heading - startHeading
+if heading>180:
+  heading -= 360
+if heading<-180:
+  heading += 360
+if heading<-180:
+  heading += 360
+
+heading = int(heading)
+print(f"Heading is: {heading}")
+
+f = open("heading.txt", "w")
+f.write(str(int(heading)))
+f.close()
